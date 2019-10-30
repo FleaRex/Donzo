@@ -69,3 +69,13 @@ def test_bottom_level_mark_done():
 
     child.mark_done()
     assert grandparent.is_done()
+
+def test_get_all_children():
+    grandparent = Card(name="Grandparent")
+    parents = grandparent.split(["Parent A", "Parent B"])
+    parent_a = parents[0]
+    parent_b = parents[1]
+    children_a = parent_a.split(["Child 1", "Child 2"])
+    children_b = parent_b.split(["Child 3", "Child 4"])
+
+    assert grandparent.get_all_children() == [parent_a] + children_a + [parent_b] + children_b

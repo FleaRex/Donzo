@@ -24,6 +24,14 @@ class Card:
     def get_children(self) -> List[Card]:
         return self.children
 
+    def get_all_children(self) -> List[Card]:
+        all_children = []
+        for child in self.get_children():
+            all_children.append(child)
+            all_children.extend(child.get_all_children())
+
+        return all_children
+
     def get_parent(self) -> Card:
         return self.parent
 
