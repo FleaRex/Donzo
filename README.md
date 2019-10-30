@@ -1,1 +1,3 @@
-"# Jeerer" 
+# Jeerer
+
+A JIRA style task manager.
