@@ -9,6 +9,15 @@ class Board:
     def __init__(self, cards: List[Card]):
         self.cards = cards
 
+    def __str__(self) -> str:
+        return "Not Done:" + \
+               self._get_numbered_list(self.get_unfinished_cards()) + \
+               "\nDone:" + \
+               self._get_numbered_list(self.get_done_cards())
+
+    def _get_numbered_list(self, cards: List[Card]) -> str:
+        return "".join([f"\n    {index}. " + str(card) for index, card in enumerate(cards)])
+
     def get_all_cards(self):
         all_cards = []
         for card in self.cards:
@@ -27,3 +36,6 @@ class Board:
 
         # We only want to see things that can be worked on (the smallest unfinished subtasks)
         return list(filter(lambda card: not card.get_children(), unfinished_cards))
+
+    def add_card(self, card: Card):
+        self.cards.append(card)

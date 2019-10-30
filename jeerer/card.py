@@ -16,6 +16,15 @@ class Card:
         self.children = children if children is not None else []
         self._done = False
 
+    def __str__(self) -> str:
+        family_history = []
+        current_generation = self
+        while current_generation is not None:
+            family_history.insert(0, current_generation.name)
+            current_generation = current_generation.parent
+
+        return '~>'.join(family_history)
+
     def split(self, new_cards: List[str]) -> List[Card]:
         cards = [Card(name=name, parent=self) for name in new_cards]
         self.children.extend(cards)

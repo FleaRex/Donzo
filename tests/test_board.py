@@ -75,3 +75,25 @@ def test_board_get_unfinished_gets_lowest_unfinished_part():
     child_a_0.mark_done()
 
     assert board.get_unfinished_cards() == [child_a_1, child_b_0, child_b_1]
+
+
+def test_string_representation():
+    not_done = Card(name="Not Done")
+    not_done_2 = Card(name="Not Done2")
+    done = Card(name="Done")
+    done.mark_done()
+
+    board = Board([done, not_done, not_done_2])
+    assert str(board) == \
+        '''Not Done:
+    0. Not Done
+    1. Not Done2
+Done:
+    0. Done'''
+
+
+def test_board_add_card():
+    board = Board([])
+    board.add_card(Card(name="Test"))
+
+    assert board.get_all_cards() == [Card(name="Test")]

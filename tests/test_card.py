@@ -55,8 +55,8 @@ def test_children_done_if_parent_mark_done():
 
 def test_top_level_mark_done():
     grandparent = Card(name="Grandparent")
-    parent = grandparent.split("Parent")[0]
-    child = parent.split("Child")[0]
+    parent = grandparent.split(["Parent"])[0]
+    child = parent.split(["Child"])[0]
 
     grandparent.mark_done()
     assert child.is_done()
@@ -70,6 +70,7 @@ def test_bottom_level_mark_done():
     child.mark_done()
     assert grandparent.is_done()
 
+
 def test_get_all_children():
     grandparent = Card(name="Grandparent")
     parents = grandparent.split(["Parent A", "Parent B"])
@@ -79,3 +80,13 @@ def test_get_all_children():
     children_b = parent_b.split(["Child 3", "Child 4"])
 
     assert grandparent.get_all_children() == [parent_a] + children_a + [parent_b] + children_b
+
+
+def test_string():
+    grandparent = Card(name="Grandparent")
+    parent = grandparent.split(["Parent"])[0]
+    child = parent.split(["Child"])[0]
+
+    assert str(grandparent) == "Grandparent"
+    assert str(parent) == "Grandparent~>Parent"
+    assert str(child) == "Grandparent~>Parent~>Child"
