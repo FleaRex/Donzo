@@ -18,8 +18,12 @@ class Board:
 
     def get_done_cards(self):
         done_cards = [card for card in self.get_all_cards() if card.is_done()]
+
+        # If Task A is made of subtask 1 and 2 then we don't care that 1 is done if A is done
         return list(filter(lambda card: card.parent not in done_cards, done_cards))
 
     def get_unfinished_cards(self):
         unfinished_cards = [card for card in self.get_all_cards() if not card.is_done()]
+
+        # We only want to see things that can be worked on (the smallest unfinished subtasks)
         return list(filter(lambda card: not card.get_children(), unfinished_cards))
