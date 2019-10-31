@@ -26,7 +26,7 @@ def main():
         action = prompt(questions)['action']
 
         if action == "Add a card":
-            board.add_card(Card("Test"))
+            add_card(board)
         elif action == "Split a card":
             card_split(board)
         elif action == "Mark a card as done":
@@ -35,19 +35,38 @@ def main():
             pass
 
 
+def add_card(board: Board):
+    questions = [
+        {
+            'type': 'input',
+            'name': 'task',
+            'message': 'What task do you want to add?',
+        }
+    ]
+
+    board.add_card(Card(prompt(questions)['task']))
+
+
 def card_split(board: Board):
     questions = [
         {
             'type': 'input',
             'name': 'number',
             'message': 'Which card would you like to split?',
-            'filter': lambda answer: int(answer)
+            'filter': lambda answer: int(answer),
+            'validate': lambda answer: 0 <= int(answer) < len(board.get_unfinished_cards())
+        },
+        {
+            'type': 'input',
+            'name': 'subtasks',
+            'message': 'How would you like to split this task? Separate your new tasks with |',
+            'filter': lambda answer: answer.split('|')
         }
     ]
+    answers = prompt(questions)
 
-    card_to_split = prompt(questions)['number']
-
-    board.get_unfinished_cards()[card_to_split].split(["X", "Y"])
+    card_to_split = answers['number']
+    board.get_unfinished_cards()[card_to_split].split(answers['subtasks'])
 
 
 def mark_card_done(board: Board):
@@ -56,7 +75,8 @@ def mark_card_done(board: Board):
             'type': 'input',
             'name': 'number',
             'message': 'Which card would you like mark done?',
-            'filter': lambda answer: int(answer)
+            'filter': lambda answer: int(answer),
+            'validate': lambda answer: 0 <= int(answer) < len(board.get_unfinished_cards())
         }
     ]
 
