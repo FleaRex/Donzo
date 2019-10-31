@@ -1,11 +1,18 @@
 from __future__ import print_function, unicode_literals
 from PyInquirer import prompt, Separator
+import os
+import pickle
 
 from jeerer.card import Card
 from jeerer.board import Board
 
+
 def main():
-    board = Board([])
+    if os.path.exists('jeerer_board.pickle'):
+        with open('jeerer_board.pickle', 'rb') as file:
+            board = pickle.load(file)
+    else:
+        board = Board([])
 
     while True:
         print(board)
@@ -19,6 +26,7 @@ def main():
                     'Add a card',
                     'Split a card',
                     'Mark a card as done',
+                    'Quit'
                 ]
             }
         ]
@@ -31,6 +39,8 @@ def main():
             card_split(board)
         elif action == "Mark a card as done":
             mark_card_done(board)
+        elif action == "Quit":
+            save_and_quit(board)
         else:
             pass
 
@@ -84,6 +94,11 @@ def mark_card_done(board: Board):
 
     board.get_unfinished_cards()[card_to_mark_done].mark_done()
 
+
+def save_and_quit(board: Board):
+    with open('jeerer_board.pickle', 'wb+') as file:
+        pickle.dump(board, file)
+        exit(0)
 
 if __name__ == "__main__":
     main()
