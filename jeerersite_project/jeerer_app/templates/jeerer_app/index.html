@@ -1,0 +1,14 @@
+{% if card_list %}
+    <ul>
+    {% for card in card_list %}
+        <li><a href="{% url 'jeerer_app:card' card.id %}">{{ card }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No cards.</p>
+{% endif %}
+<form action="{% url 'jeerer_app:card_create' %}" method="post">
+{% csrf_token %}
+    <input type="text" name="newCard">
+    <input type="submit" value="Create Card">
+</form>
