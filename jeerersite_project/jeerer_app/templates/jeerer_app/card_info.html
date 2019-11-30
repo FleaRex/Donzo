@@ -1,3 +1,16 @@
-{{ card }}
+<h1>{{ card }}</h1>
+
+<ul>
+{% for card in card.get_all_children %}
+    <li><a href="{% url 'jeerer_app:card' card.id %}">{{ card }}</a></li>
+{% endfor %}
+</ul>
+
+<form action="{% url 'jeerer_app:children' card.id %}" method="post">
+{% csrf_token %}
+    <input type="text" name="newCard" multiple>
+    <input type="submit" value="Add Child">
+</form>
+
 <br>
 <a href="{% url 'jeerer_app:index' %}">Home</a>

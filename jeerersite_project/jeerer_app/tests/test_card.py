@@ -1,92 +1,104 @@
-from jeerer.card import Card
+from django.test import TestCase
+
+from jeerer_app.models import CardModel
 
 
-def test_can_create_card():
-    assert Card(name="Card A") == Card(name="Card A")
-    assert Card(name="Card A") != Card(name="Card B")
+class CardModelTests(TestCase):
+    def test_card_can_be_split(self):
+        parent = CardModel.objects.create(name="Parent")
+        parent.split(["A", "B"])
+        children = CardModel.objects.filter(parent=parent)
+        a = CardModel.objects.filter(name="A")[0]
+        b = CardModel.objects.filter(name="B")[0]
+        self.assertIn(a, children)
+        self.assertIn(b, children)
 
+    def test_can_get_child_cards(self):
+        parent = CardModel.objects.create(name="Parent")
+        parent.split(["A", "B"])
+        children = parent.get_children()
+        a = CardModel.objects.filter(name="A")[0]
+        b = CardModel.objects.filter(name="B")[0]
+        self.assertIn(a, children)
+        self.assertIn(b, children)
 
-def test_card_can_be_split():
-    parent = Card(name="Parent")
-    assert parent.split(["A", "B"]) == [
-        Card(name="A", parent=parent), Card(name="B", parent=parent)
-    ]
+    def test_can_get_parent(self):
+        parent = CardModel.objects.create(name="Parent")
+        self.assertIsNone(parent.get_parent())
 
+        parent.split(["A", "B"])
 
-def test_can_get_child_cards():
-    parent = Card(name="Parent")
-    parent.split(["A", "B"])
-    assert parent.get_children() == [
-        Card(name="A", parent=parent), Card(name="B", parent=parent)
-    ]
+        for child in parent.get_children():
+            self.assertEqual(parent, child.get_parent())
 
+    def test_can_set_done(self):
+        card = CardModel.objects.create(name="A")
+        self.assertFalse(card.is_done())
+        card.mark_done()
+        self.assertTrue(card.is_done())
 
-def test_can_get_parent():
-    parent = Card(name="Parent")
-    children = parent.split(["A", "B"])
-    assert parent.get_parent() is None
-    assert children[0].get_parent() == parent
+    def test_done_if_children_done(self):
+        parent = CardModel.objects.create(name="Parent")
+        parent.split(["A", "B"])
+        children = parent.get_children()
+        self.assertFalse(parent.is_done())
+        for child in children:
+            child.mark_done()
 
+        self.assertTrue(parent.is_done())
 
-def test_can_set_done():
-    card = Card(name="A")
-    assert not card.is_done()
-    card.mark_done()
-    assert card.is_done()
+    def test_bottom_level_mark_done(self):
+        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent.split(["Parent"])
+        parent = grandparent.get_children()[0]
+        parent.split(["Child"])
+        child = parent.get_children()[0]
 
-
-def test_done_if_children_done():
-    parent = Card(name="Parent")
-    children = parent.split(["A", "B"])
-    assert not parent.is_done()
-    for child in children:
         child.mark_done()
+        self.assertTrue(grandparent.is_done())
 
-    assert parent.is_done()
+    def test_get_all_children(self):
+        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent.split(["Parent A", "Parent B"])
+        parents = grandparent.get_children()
+        parent_a = parents[0]
+        parent_b = parents[1]
+        parent_a.split(["Child 1", "Child 2"])
+        children_a = parent_a.get_children()
+        parent_b.split(["Child 3", "Child 4"])
+        children_b = parent_b.get_children()
 
+        assert grandparent.get_all_children() == [parent_a] + children_a + [parent_b] + children_b
 
-def test_children_done_if_parent_mark_done():
-    parent = Card(name="Parent")
-    children = parent.split(["A", "B"])
-    parent.mark_done()
-    for child in children:
-        assert child.is_done()
+    def test_top_level_mark_done(self):
+        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent.split(["Parent"])
+        parent = grandparent.get_children()[0]
+        parent.split(["Child"])
+        child = parent.get_children()[0]
 
+        grandparent.mark_done()
+        # Parent gets all children from db and sees child is done, child needs refreshing as looks at own attribute
+        child.refresh_from_db()
+        self.assertTrue(parent.is_done())
+        self.assertTrue(child.is_done())
 
-def test_top_level_mark_done():
-    grandparent = Card(name="Grandparent")
-    parent = grandparent.split(["Parent"])[0]
-    child = parent.split(["Child"])[0]
+    def test_children_done_if_parent_mark_done(self):
+        parent = CardModel.objects.create(name="Parent")
+        parent.split(["A", "B"])
+        parent.mark_done()
+        children = parent.get_children()
+        for child in children:
+            child.refresh_from_db()
+            self.assertTrue(child.is_done())
 
-    grandparent.mark_done()
-    assert child.is_done()
+    def test_string(self):
+        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent.split(["Parent"])
+        parent = grandparent.get_children()[0]
+        parent.split(["Child"])
+        child = parent.get_children()[0]
 
-
-def test_bottom_level_mark_done():
-    grandparent = Card(name="Grandparent")
-    parent = grandparent.split(["Parent"])[0]
-    child = parent.split(["Child"])[0]
-
-    child.mark_done()
-    assert grandparent.is_done()
-
-
-def test_get_all_children():
-    grandparent = Card(name="Grandparent")
-    parents = grandparent.split(["Parent A", "Parent B"])
-    parent_a = parents[0]
-    parent_b = parents[1]
-    children_a = parent_a.split(["Child 1", "Child 2"])
-    children_b = parent_b.split(["Child 3", "Child 4"])
-
-    assert grandparent.get_all_children() == [parent_a] + children_a + [parent_b] + children_b
-
-
-def test_string():
-    grandparent = Card(name="Grandparent")
-    parent = grandparent.split(["Parent"])[0]
-    child = parent.split(["Child"])[0]
-
-    assert str(grandparent) == "Grandparent"
-    assert str(parent) == "Grandparent~>Parent"
-    assert str(child) == "Grandparent~>Parent~>Child"
+        self.assertEqual(str(grandparent), "Grandparent")
+        self.assertEqual(str(parent), "Grandparent~>Parent")
+        self.assertEqual(str(child), "Grandparent~>Parent~>Child")

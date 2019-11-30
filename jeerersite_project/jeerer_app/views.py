@@ -12,7 +12,7 @@ def index(request: HttpRequest):
     return render(request, 'jeerer_app/index.html', context)
 
 
-def card(request: HttpRequest, card_id):
+def card(request: HttpRequest, card_id: int):
     card = get_object_or_404(CardModel, pk=card_id)
     return render(request, 'jeerer_app/card_info.html', {'card': card})
 
@@ -21,3 +21,10 @@ def card_create(request: HttpRequest):
     card = CardModel(name=request.POST['newCard'])
     card.save()
     return HttpResponseRedirect(reverse('jeerer_app:card', args=(card.id,)))
+
+
+def children(request: HttpRequest, card_id: int):
+    parent = get_object_or_404(CardModel, pk=card_id)
+    if request.method == 'POST':
+        parent.split([request.POST['newCard']])
+        return HttpResponseRedirect(reverse('jeerer_app:card', args=(card_id,)))
