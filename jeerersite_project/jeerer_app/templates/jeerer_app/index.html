@@ -1,7 +1,11 @@
 {% if card_list %}
     <ul>
     {% for card in card_list %}
-        <li><a href="{% url 'jeerer_app:card' card.id %}">{{ card }}</a></li>
+        <li><a href="{% url 'jeerer_app:card' card.id %}">{{ card }} {% if card.is_done %}
+✓
+{% else %}
+X <a href="{% url 'jeerer_app:mark_done' card.id %}">Mark Card as Done</a>
+{% endif %}</a></li>
     {% endfor %}
     </ul>
 {% else %}

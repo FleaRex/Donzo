@@ -23,6 +23,12 @@ def card_create(request: HttpRequest):
     return HttpResponseRedirect(reverse('jeerer_app:card', args=(card.id,)))
 
 
+def mark_done(request: HttpRequest, card_id: int):
+    card = get_object_or_404(CardModel, pk=card_id)
+    card.mark_done()
+    return HttpResponseRedirect(reverse('jeerer_app:index'))
+
+
 def children(request: HttpRequest, card_id: int):
     parent = get_object_or_404(CardModel, pk=card_id)
     if request.method == 'POST':
