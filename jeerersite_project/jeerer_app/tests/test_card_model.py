@@ -1,11 +1,14 @@
 from django.test import TestCase
 
-from jeerer_app.models import CardModel
+from jeerer_app.models import CardModel, BoardModel
 
 
 class CardModelTests(TestCase):
+    def setUp(self) -> None:
+        self.board = BoardModel.objects.create(name="Test Board")
+
     def test_card_can_be_split(self):
-        parent = CardModel.objects.create(name="Parent")
+        parent = CardModel.objects.create(name="Parent", board=self.board)
         parent.split(["A", "B"])
         children = CardModel.objects.filter(parent=parent)
         a = CardModel.objects.filter(name="A")[0]
@@ -14,7 +17,7 @@ class CardModelTests(TestCase):
         self.assertIn(b, children)
 
     def test_can_get_child_cards(self):
-        parent = CardModel.objects.create(name="Parent")
+        parent = CardModel.objects.create(name="Parent", board=self.board)
         parent.split(["A", "B"])
         children = parent.get_children()
         a = CardModel.objects.filter(name="A")[0]
@@ -23,7 +26,7 @@ class CardModelTests(TestCase):
         self.assertIn(b, children)
 
     def test_can_get_parent(self):
-        parent = CardModel.objects.create(name="Parent")
+        parent = CardModel.objects.create(name="Parent", board=self.board)
         self.assertIsNone(parent.get_parent())
 
         parent.split(["A", "B"])
@@ -32,13 +35,13 @@ class CardModelTests(TestCase):
             self.assertEqual(parent, child.get_parent())
 
     def test_can_set_done(self):
-        card = CardModel.objects.create(name="A")
+        card = CardModel.objects.create(name="A", board=self.board)
         self.assertFalse(card.is_done())
         card.mark_done()
         self.assertTrue(card.is_done())
 
     def test_done_if_children_done(self):
-        parent = CardModel.objects.create(name="Parent")
+        parent = CardModel.objects.create(name="Parent", board=self.board)
         parent.split(["A", "B"])
         children = parent.get_children()
         self.assertFalse(parent.is_done())
@@ -48,7 +51,7 @@ class CardModelTests(TestCase):
         self.assertTrue(parent.is_done())
 
     def test_bottom_level_mark_done(self):
-        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent = CardModel.objects.create(name="Grandparent", board=self.board)
         grandparent.split(["Parent"])
         parent = grandparent.get_children()[0]
         parent.split(["Child"])
@@ -58,7 +61,7 @@ class CardModelTests(TestCase):
         self.assertTrue(grandparent.is_done())
 
     def test_get_all_children(self):
-        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent = CardModel.objects.create(name="Grandparent", board=self.board)
         grandparent.split(["Parent A", "Parent B"])
         parents = grandparent.get_children()
         parent_a = parents[0]
@@ -71,7 +74,7 @@ class CardModelTests(TestCase):
         assert grandparent.get_all_children() == [parent_a] + children_a + [parent_b] + children_b
 
     def test_top_level_mark_done(self):
-        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent = CardModel.objects.create(name="Grandparent", board=self.board)
         grandparent.split(["Parent"])
         parent = grandparent.get_children()[0]
         parent.split(["Child"])
@@ -84,7 +87,7 @@ class CardModelTests(TestCase):
         self.assertTrue(child.is_done())
 
     def test_children_done_if_parent_mark_done(self):
-        parent = CardModel.objects.create(name="Parent")
+        parent = CardModel.objects.create(name="Parent", board=self.board)
         parent.split(["A", "B"])
         parent.mark_done()
         children = parent.get_children()
@@ -93,7 +96,7 @@ class CardModelTests(TestCase):
             self.assertTrue(child.is_done())
 
     def test_string(self):
-        grandparent = CardModel.objects.create(name="Grandparent")
+        grandparent = CardModel.objects.create(name="Grandparent", board=self.board)
         grandparent.split(["Parent"])
         parent = grandparent.get_children()[0]
         parent.split(["Child"])

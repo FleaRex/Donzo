@@ -1,0 +1,18 @@
+{% if board.get_all_cards %}
+    <ul>
+    {% for card in board.get_all_cards %}
+        <li><a href="{% url 'jeerer_app:card' board.id card.id %}">{{ card }} {% if card.is_done %}
+✓
+{% else %}
+X <a href="{% url 'jeerer_app:mark_done' board.id card.id %}">Mark Card as Done</a>
+{% endif %}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No cards.</p>
+{% endif %}
+<form action="{% url 'jeerer_app:card_create' board.id %}" method="post">
+{% csrf_token %}
+    <input type="text" name="newCard">
+    <input type="submit" value="Create Card">
+</form>

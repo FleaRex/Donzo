@@ -1,9 +1,11 @@
 from __future__ import annotations
 from django.db import models
 from typing import Iterable
+from .board import BoardModel
 
 
 class CardModel(models.Model):
+    board = models.ForeignKey(BoardModel, on_delete=models.CASCADE)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=256)
     done = models.BooleanField(default=False)
@@ -17,9 +19,9 @@ class CardModel(models.Model):
 
         return '~>'.join(family_history)
 
-    def split(self, new_cards: List[str]):
+    def split(self, new_cards: Iterable[str]):
         for name in new_cards:
-            CardModel.objects.create(name=name, parent=self)
+            CardModel.objects.create(board=self.board, name=name, parent=self)
 
     def get_children(self) -> Iterable[CardModel]:
         return list(CardModel.objects.filter(parent=self))
