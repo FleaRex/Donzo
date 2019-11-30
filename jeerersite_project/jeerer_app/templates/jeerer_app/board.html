@@ -1,18 +1,20 @@
-{% if board.get_all_cards %}
+<h1>To Do List</h1>
     <ul>
-    {% for card in board.get_all_cards %}
-        <li><a href="{% url 'jeerer_app:card' board.id card.id %}">{{ card }} {% if card.is_done %}
-✓
-{% else %}
-X <a href="{% url 'jeerer_app:mark_done' board.id card.id %}">Mark Card as Done</a>
-{% endif %}</a></li>
+    {% for card in board.get_unfinished_cards %}
+        <li><a href="{% url 'jeerer_app:card' board.id card.id %}">{{ card }}</a>: <a href="{% url 'jeerer_app:mark_done' board.id card.id %}">Mark Card as Done</a></li>
     {% endfor %}
     </ul>
-{% else %}
-    <p>No cards.</p>
-{% endif %}
+
+<h1>Done List</h1>
+    <ul>
+    {% for card in board.get_done_cards %}
+        <li><a href="{% url 'jeerer_app:card' board.id card.id %}">{{ card }}</a></li>
+    {% endfor %}
+    </ul>
 <form action="{% url 'jeerer_app:card_create' board.id %}" method="post">
 {% csrf_token %}
     <input type="text" name="newCard">
     <input type="submit" value="Create Card">
 </form>
+<br>
+<a href="{% url 'jeerer_app:index' %}">Back to home</a>
