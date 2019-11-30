@@ -19,10 +19,17 @@ class ViewTests(TestCase):
             len(CardModel.objects.filter(name="Test"))
         )
 
-    def test_create_child(self):
-        card = CardModel.objects.create(board=self.board, name="X")
-        self.client.post(reverse('jeerer_app:children', args=(self.board.id, card.id,)), data={"newCard": "Test"})
+    def test_do_not_create_empty_card(self):
+        self.client.post(reverse('jeerer_app:card_create', args=(self.board.id,)), data={"newCard": ""})
         self.assertEqual(
-            1,
+            0,
+            len(CardModel.objects.filter(name=""))
+        )
+
+    def test_do_not_create_empty_child(self):
+        card = CardModel.objects.create(board=self.board, name="X")
+        self.client.post(reverse('jeerer_app:children', args=(self.board.id, card.id,)), data={"newCard": ""})
+        self.assertEqual(
+            0,
             len(CardModel.objects.filter(parent=card))
         )

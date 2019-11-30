@@ -19,10 +19,11 @@ def card(request: HttpRequest, board_id: int, card_id: int):
 
 def card_create(request: HttpRequest, board_id: int):
     board = get_object_or_404(BoardModel, pk=board_id)
-    card = CardModel(board=board, name=request.POST['newCard'])
-    card.save()
-    return HttpResponseRedirect(reverse('jeerer_app:card', args=(board_id, card.id,)))
-
+    new_card_name = request.POST['newCard']
+    if new_card_name != '':
+        card = CardModel.objects.create(board=board, name=request.POST['newCard'])
+        return HttpResponseRedirect(reverse('jeerer_app:card', args=(board_id, card.id,)))
+    return render(request, 'jeerer_app/board.html', {'board': board})
 
 def mark_done(request: HttpRequest, board_id: int, card_id: int):
     card = get_object_or_404(CardModel, pk=card_id)
@@ -33,5 +34,7 @@ def mark_done(request: HttpRequest, board_id: int, card_id: int):
 def children(request: HttpRequest, board_id: int, card_id: int):
     parent = get_object_or_404(CardModel, pk=card_id)
     if request.method == 'POST':
-        parent.split([request.POST['newCard']])
+        new_card_name = request.POST['newCard']
+        if new_card_name != '':
+            parent.split([new_card_name])
         return HttpResponseRedirect(reverse('jeerer_app:card', args=(board_id, card_id,)))
