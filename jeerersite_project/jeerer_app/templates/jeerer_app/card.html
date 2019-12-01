@@ -4,6 +4,11 @@
 X <a href="{% url 'jeerer_app:mark_done' card.board.id card.id %}">Mark Card as Done</a>
 {% endif %}</h1>
 
+{% if card.parent %}
+<a href="{% url 'jeerer_app:card' card.board.id card.parent.id %}">Parent: {{ card.parent }}</a>
+{% endif %}
+
+<h3>Children</h3>
 <ul>
 {% for card in card.get_all_children %}
     <li><a href="{% url 'jeerer_app:card' card.board.id card.id %}">{{ card }}</a>

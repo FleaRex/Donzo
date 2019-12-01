@@ -1,26 +1,39 @@
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, HttpResponseForbidden
 from .models import CardModel, BoardModel
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 
 def index(request: HttpRequest):
+    all_boards = BoardModel.objects.all()
+
     context = {
-        'board_list': BoardModel.objects.all()
+        'board_list': filter(lambda board: request.user in board.users.all(), all_boards)
     }
     return render(request, 'jeerer_app/index.html', context)
 
 
 def board_create(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
     new_board_name = request.POST['newBoard']
     if new_board_name != '':
         board = BoardModel.objects.create(name=new_board_name)
+        board.users.add(request.user)
         return HttpResponseRedirect(reverse('jeerer_app:board', args=(board.id,)))
     return HttpResponseRedirect(reverse('jeerer_app:index'))
 
 
 def board(request: HttpRequest, board_id: int):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
     board = get_object_or_404(BoardModel, pk=board_id)
+
+    if request.user not in board.users.all():
+        return HttpResponseForbidden()
+
     context = {
         'board': board
     }
