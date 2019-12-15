@@ -1,4 +1,3 @@
-from __future__ import annotations
 from django.db import models
 from typing import Iterable
 from .board import BoardModel
