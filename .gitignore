@@ -3,3 +3,7 @@
 *.mypy_cache*
 *__pycache__*
 jeerer_board.pickle
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
