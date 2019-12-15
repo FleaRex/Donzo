@@ -25,7 +25,7 @@ SECRET_KEY = 'c3g__wq1p8#lcb)(r^o&a29!h8v@@s4l4typwzy+k=rnurlby*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['jeerer-env.muhmwnimns.eu-west-2.elasticbeanstalk.com']
 
 
 # Application definition
@@ -122,6 +122,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
