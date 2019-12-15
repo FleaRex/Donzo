@@ -9,3 +9,5 @@ Steps:
 2. Deploy on AWS
 3. Automate deployment to AWS
 4. Make nicer
+   1. Add users
+   2. Nice front end

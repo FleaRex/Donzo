@@ -9,6 +9,7 @@ verify_ssl = true
 pytest = "*"
 mypy = "*"
 pyinquirer = "*"
+django = "*"
 
 [requires]
 python_version = "3.7"
