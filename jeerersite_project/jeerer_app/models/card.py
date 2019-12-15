@@ -22,10 +22,10 @@ class CardModel(models.Model):
         for name in new_cards:
             CardModel.objects.create(board=self.board, name=name, parent=self)
 
-    def get_children(self) -> Iterable[CardModel]:
+    def get_children(self):
         return list(CardModel.objects.filter(parent=self))
 
-    def get_all_children(self) -> Iterable[CardModel]:
+    def get_all_children(self):
         all_children = []
         for child in self.get_children():
             all_children.append(child)
@@ -33,7 +33,7 @@ class CardModel(models.Model):
 
         return all_children
 
-    def get_parent(self) -> CardModel:
+    def get_parent(self):
         return self.parent
 
     def is_done(self) -> bool:
