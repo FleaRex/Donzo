@@ -1,3 +1,4 @@
+<a href="{% url 'jeerer_app:board' card.board.id %}">Back to board</a>
 <h1>{{ card }} {% if card.is_done %}
 ✓
 {% else %}
@@ -25,4 +26,3 @@ X <a href="{% url 'jeerer_app:mark_done' card.board.id card.id %}">Mark Card as 
 </form>
 
 <br>
-<a href="{% url 'jeerer_app:board' card.board.id %}">Back to board</a>
