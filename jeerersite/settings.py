@@ -26,7 +26,7 @@ SECRET_KEY = 'c3g__wq1p8#lcb)(r^o&a29!h8v@@s4l4typwzy+k=rnurlby*'
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'jeerer.benmadley.co.uk',
+    'donzo.benmadley.co.uk',
     'jeerer-env.muhmwnimns.eu-west-2.elasticbeanstalk.com',
     '127.0.0.1'
 ]
