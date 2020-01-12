@@ -58,6 +58,14 @@ class ViewTests(TestCase):
             len(CardModel.objects.filter(parent=card))
         )
 
+    def test_delete_card(self):
+        card = CardModel.objects.create(board=self.board, name="X")
+        self.client.post(reverse('jeerer_app:card_delete', args=(self.board.id, card.id,)), data={})
+        self.assertEqual(
+            1,
+            len(CardModel.objects.all())
+        )
+
     def test_do_not_have_access_to_not_your_boards(self):
         response = self.client.get(reverse('jeerer_app:index'))
         self.assertNotContains(response, "Other Board")
@@ -66,3 +74,7 @@ class ViewTests(TestCase):
     def test_do_not_have_access_to_not_your_cards(self):
         response = self.client.get(reverse('jeerer_app:board', args=(self.other_board.id,)))
         self.assertEqual(response.status_code, 403)
+
+    # test that user can't see cards they don't have access to.
+    # test that user can't delete cards they don't have access to
+    # test only interact with card if board is correct

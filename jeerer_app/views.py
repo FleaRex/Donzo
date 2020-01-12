@@ -54,6 +54,13 @@ def card_create(request: HttpRequest, board_id: int):
     return render(request, 'jeerer_app/board.html', {'board': board})
 
 
+def card_delete(request: HttpRequest, board_id: int, card_id: int):
+    board = get_object_or_404(BoardModel, pk=board_id)
+    card = get_object_or_404(CardModel, pk=card_id)
+    card.delete()
+    return render(request, 'jeerer_app/board.html', {'board': board})
+
+
 def mark_done(request: HttpRequest, board_id: int, card_id: int):
     card = get_object_or_404(CardModel, pk=card_id)
     card.mark_done()
