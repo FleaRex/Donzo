@@ -25,4 +25,10 @@ X <a href="{% url 'jeerer_app:mark_done' card.board.id card.id %}">Mark Card as 
     <input type="submit" value="Add Child">
 </form>
 
+<form action="{% url 'jeerer_app:card_delete' card.board.id card.id %}" method="post">
+{% csrf_token %}
+    <input type="submit" value="Delete Card">
+</form>
+
+
 <br>
