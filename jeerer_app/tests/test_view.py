@@ -13,7 +13,7 @@ class ViewTests(TestCase):
         self.board.users.add(self.user)
         self.other_board = BoardModel.objects.create(name="Other Board")
         self.other_board.users.add(other_user)
-        CardModel.objects.create(board=self.other_board, name="X")
+        self.other_card = CardModel.objects.create(board=self.other_board, name="X")
 
     def test_mark_done(self):
         card = CardModel.objects.create(board=self.board, name="X")
@@ -71,10 +71,34 @@ class ViewTests(TestCase):
         self.assertNotContains(response, "Other Board")
         self.assertContains(response, "Test Board")
 
-    def test_do_not_have_access_to_not_your_cards(self):
+    def test_do_not_have_access_to_not_your_board(self):
         response = self.client.get(reverse('jeerer_app:board', args=(self.other_board.id,)))
         self.assertEqual(response.status_code, 403)
 
-    # test that user can't see cards they don't have access to.
-    # test that user can't delete cards they don't have access to
-    # test only interact with card if board is correct
+    def test_do_not_have_access_to_not_your_cards(self):
+        response = self.client.get(reverse('jeerer_app:card', args=(self.other_board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_do_not_have_access_if_card_not_in_board(self):
+        response = self.client.get(reverse('jeerer_app:card', args=(self.board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_delete_not_your_cards(self):
+        response = self.client.get(reverse('jeerer_app:card_delete', args=(self.other_board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_delete_if_card_not_in_board(self):
+        response = self.client.get(reverse('jeerer_app:card_delete', args=(self.board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_mark_done_not_your_cards(self):
+        response = self.client.get(reverse('jeerer_app:mark_done', args=(self.other_board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_mark_done_if_card_not_in_board(self):
+        response = self.client.get(reverse('jeerer_app:mark_done', args=(self.board.id, self.other_card.id)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_create_card_if_no_access_to_board(self):
+        response = self.client.post(reverse('jeerer_app:card_create', args=(self.other_board.id,)), data={"newCard": "Test"})
+        self.assertEqual(response.status_code, 403)

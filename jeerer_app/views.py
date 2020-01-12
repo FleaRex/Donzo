@@ -41,12 +41,31 @@ def board(request: HttpRequest, board_id: int):
 
 
 def card(request: HttpRequest, board_id: int, card_id: int):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    board = get_object_or_404(BoardModel, pk=board_id)
+
+    if request.user not in board.users.all():
+        return HttpResponseForbidden()
+
     card = get_object_or_404(CardModel, pk=card_id)
+
+    if card.board != board:
+        return HttpResponseForbidden()
+
     return render(request, 'jeerer_app/card.html', {'card': card})
 
 
 def card_create(request: HttpRequest, board_id: int):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
     board = get_object_or_404(BoardModel, pk=board_id)
+
+    if request.user not in board.users.all():
+        return HttpResponseForbidden()
+
     new_card_name = request.POST['newCard']
     if new_card_name != '':
         card = CardModel.objects.create(board=board, name=request.POST['newCard'])
@@ -55,14 +74,35 @@ def card_create(request: HttpRequest, board_id: int):
 
 
 def card_delete(request: HttpRequest, board_id: int, card_id: int):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
     board = get_object_or_404(BoardModel, pk=board_id)
+
+    if request.user not in board.users.all():
+        return HttpResponseForbidden()
+
     card = get_object_or_404(CardModel, pk=card_id)
+
+    if card.board != board:
+        return HttpResponseForbidden()
     card.delete()
     return render(request, 'jeerer_app/board.html', {'board': board})
 
 
 def mark_done(request: HttpRequest, board_id: int, card_id: int):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    board = get_object_or_404(BoardModel, pk=board_id)
+
+    if request.user not in board.users.all():
+        return HttpResponseForbidden()
+
     card = get_object_or_404(CardModel, pk=card_id)
+
+    if card.board != board:
+        return HttpResponseForbidden()
     card.mark_done()
     return HttpResponseRedirect(reverse('jeerer_app:board', args=(board_id,)))
 
